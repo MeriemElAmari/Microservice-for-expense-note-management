@@ -85,7 +85,10 @@ public class Collaborator {
     ))
     private Agency agency;
 
-    @OneToMany(mappedBy = "collaborator")
+    @ManyToMany
+    @JoinTable(
+            name = "mission_collaborator"
+    )
     private List<Mission> missions = new ArrayList<>();
 
     @OneToMany(mappedBy = "collaborator")

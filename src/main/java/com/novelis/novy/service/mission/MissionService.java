@@ -1,4 +1,4 @@
-package com.novelis.novy.service;
+package com.novelis.novy.service.mission;
 
 import com.novelis.novy.dto.dtoRequest.ExpenseReportRequestDTO;
 import com.novelis.novy.dto.dtoRequest.MissionRequestDTO;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 public interface MissionService {
-    public MissionResponseDTO createMissionForCollaborator(Long collaboratorId, MissionRequestDTO missionRequestDTO);
+    MissionResponseDTO createMission(MissionRequestDTO missionRequestDTO, List<Long> collaboratorIds);
     public List<MissionResponseDTO> getAllMissions();
     public MissionResponseDTO getMissionById(Long id);
 
@@ -20,5 +20,6 @@ public interface MissionService {
     public List<ExpenseReportListDTO> getMissionExpenseReports(Long missionId);
     public void updateExpenseReportInMission(Long missionId, Long expenseReportId , ExpenseReportRequestDTO expenseReportRequestDTO);
     public void deleteExpenseReportFromMission(Long missionId, Long expenseReportId );
-
+    public void addCollaboratorsToMission(Long missionId, List<Long> collaboratorIds) ;
+    public void removeCollaboratorsFromMission(Long missionId, List<Long> collaboratorIds) ;
     }

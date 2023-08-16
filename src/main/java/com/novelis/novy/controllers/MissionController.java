@@ -2,7 +2,7 @@ package com.novelis.novy.controllers;
 
 import com.novelis.novy.dto.dtoRequest.MissionRequestDTO;
 import com.novelis.novy.dto.dtoResponse.MissionResponseDTO;
-import com.novelis.novy.service.MissionService;
+import com.novelis.novy.service.mission.MissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ public class MissionController {
     }
     @PostMapping
     public ResponseEntity<MissionResponseDTO> createMission(@RequestBody MissionRequestDTO missionRequestDTO) {
-        MissionResponseDTO createdMission = missionService.createMissionForCollaborator(missionRequestDTO);
+        MissionResponseDTO createdMission = missionService.createMission(missionRequestDTO,null);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMission);
     }
 }

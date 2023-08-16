@@ -19,12 +19,8 @@ public class Mission {
     @Column(name = "id_mission")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_collaborator", referencedColumnName = "id",
-    foreignKey = @ForeignKey(
-            name = "fk_mission_collaborator"
-    ))
-    private Collaborator collaborator;
+    @ManyToMany(mappedBy = "missions")
+    private List<Collaborator> collaborators = new ArrayList<>();
 
     @Column(name = "mission_name", length = 100)
     private String missionName;

@@ -1,4 +1,4 @@
-package com.novelis.novy.service;
+package com.novelis.novy.service.mission;
 
 import com.novelis.novy.Repository.CollaboratorRepository;
 import com.novelis.novy.Repository.ExpenseReportRepository;
@@ -12,6 +12,7 @@ import com.novelis.novy.dto.mappers.MissionMapper;
 import com.novelis.novy.model.Collaborator;
 import com.novelis.novy.model.ExpenseReport;
 import com.novelis.novy.model.Mission;
+import com.novelis.novy.service.mission.MissionService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -31,24 +32,18 @@ public class MissionServiceImpl implements MissionService {
     }
 
     @Override
-    public MissionResponseDTO createMissionForCollaborator(Long collaboratorId, MissionRequestDTO missionRequestDTO) {
-        // Find the collaborator by ID
-        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
-                .orElseThrow(() -> new EntityNotFoundException("Collaborator not found"));
-
-        // Map the mission request DTO to a mission entity
+    public MissionResponseDTO createMission(MissionRequestDTO missionRequestDTO, List<Long> collaboratorIds) {
         Mission mission = MissionMapper.INSTANCE.missionRequestToMissionEntity(missionRequestDTO);
-
-        // Associate the collaborator with the mission
-        mission.setCollaborator(collaborator);
-
-        // Save the mission in the database
         Mission savedMission = missionRepository.save(mission);
 
-        // Map the saved mission entity to a mission response DTO
-        MissionResponseDTO missionResponseDTO = MissionMapper.INSTANCE.missionEntitytoMissionResponseDTO(savedMission);
+        if (collaboratorIds != null && !collaboratorIds.isEmpty()) {
+            List<Collaborator> collaborators = collaboratorRepository.findAllById(collaboratorIds);
+            savedMission.setCollaborators(collaborators);
+        }
 
-        return missionResponseDTO;    }
+        MissionResponseDTO missionResponseDTO = MissionMapper.INSTANCE.missionEntitytoMissionResponseDTO(savedMission);
+        return missionResponseDTO;
+    }
 
     @Override
     public List<MissionResponseDTO> getAllMissions() {
@@ -128,6 +123,34 @@ public class MissionServiceImpl implements MissionService {
 
         expenseReportRepository.delete(expenseReport);
 
+    }
+
+    @Override
+    public void addCollaboratorsToMission(Long missionId, List<Long> collaboratorIds) {
+        Mission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new EntityNotFoundException("Mission not found"));
+
+        List<Collaborator> collaborators = collaboratorRepository.findAllById(collaboratorIds);
+
+        mission.getCollaborators().addAll(collaborators);
+        missionRepository.save(mission);
+
+        collaborators.forEach(collaborator -> collaborator.getMissions().add(mission));
+        collaboratorRepository.saveAll(collaborators);
+    }
+
+    @Override
+    public void removeCollaboratorsFromMission(Long missionId, List<Long> collaboratorIds) {
+        Mission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new EntityNotFoundException("Mission not found"));
+
+        List<Collaborator> collaboratorsToRemove = collaboratorRepository.findAllById(collaboratorIds);
+
+        mission.getCollaborators().removeAll(collaboratorsToRemove);
+        missionRepository.save(mission);
+
+        collaboratorsToRemove.forEach(collaborator -> collaborator.getMissions().remove(mission));
+        collaboratorRepository.saveAll(collaboratorsToRemove);
     }
 
 }
