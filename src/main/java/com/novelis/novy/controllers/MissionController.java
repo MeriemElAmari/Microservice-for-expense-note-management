@@ -6,10 +6,9 @@ import com.novelis.novy.service.mission.MissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/missions")
@@ -24,4 +23,13 @@ public class MissionController {
         MissionResponseDTO createdMission = missionService.createMission(missionRequestDTO,null);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMission);
     }
+    @PostMapping("/{missionId}/add-collaborators")
+    public ResponseEntity<MissionResponseDTO> addCollaboratorsToMission(
+            @PathVariable Long missionId,
+            @RequestBody List<Long> collaboratorIds) {
+        MissionResponseDTO updatedMission = missionService.addCollaboratorsToMission(missionId, collaboratorIds);
+
+        return ResponseEntity.ok(updatedMission);
+    }
+
 }

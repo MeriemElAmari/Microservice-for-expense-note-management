@@ -126,7 +126,7 @@ public class MissionServiceImpl implements MissionService {
     }
 
     @Override
-    public void addCollaboratorsToMission(Long missionId, List<Long> collaboratorIds) {
+    public MissionResponseDTO addCollaboratorsToMission(Long missionId, List<Long> collaboratorIds) {
         Mission mission = missionRepository.findById(missionId)
                 .orElseThrow(() -> new EntityNotFoundException("Mission not found"));
 
@@ -137,6 +137,7 @@ public class MissionServiceImpl implements MissionService {
 
         collaborators.forEach(collaborator -> collaborator.getMissions().add(mission));
         collaboratorRepository.saveAll(collaborators);
+        return MissionMapper.INSTANCE.missionEntitytoMissionResponseDTO(mission);
     }
 
     @Override
