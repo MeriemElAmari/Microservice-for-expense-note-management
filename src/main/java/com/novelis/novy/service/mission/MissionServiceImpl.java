@@ -5,8 +5,10 @@ import com.novelis.novy.Repository.ExpenseReportRepository;
 import com.novelis.novy.Repository.MissionRepository;
 import com.novelis.novy.dto.dtoRequest.ExpenseReportRequestDTO;
 import com.novelis.novy.dto.dtoRequest.MissionRequestDTO;
+import com.novelis.novy.dto.dtoResponse.CollaboratorResponseDTO;
 import com.novelis.novy.dto.dtoResponse.ExpenseReportListDTO;
 import com.novelis.novy.dto.dtoResponse.MissionResponseDTO;
+import com.novelis.novy.dto.mappers.CollaboratorMapper;
 import com.novelis.novy.dto.mappers.ExpenseReportMapper;
 import com.novelis.novy.dto.mappers.MissionMapper;
 import com.novelis.novy.model.Collaborator;
@@ -113,7 +115,7 @@ public class MissionServiceImpl implements MissionService {
     }
 
     @Override
-    public void deleteExpenseReportFromMission(Long missionId, Long expenseReportId) {
+    public void removeExpenseReportFromMission(Long missionId, Long expenseReportId) {
         Mission mission = missionRepository.findById(missionId).orElseThrow(()-> new EntityNotFoundException("Mission not found"));
         ExpenseReport expenseReport = mission.getExpenseReports().stream().filter(er -> er.getReportID().equals(expenseReportId)).findFirst().
                 orElseThrow(()->new EntityNotFoundException("Expense Report Not Found"));
@@ -141,17 +143,36 @@ public class MissionServiceImpl implements MissionService {
     }
 
     @Override
-    public void removeCollaboratorsFromMission(Long missionId, List<Long> collaboratorIds) {
+    public MissionResponseDTO removeCollaboratorsFromMission(Long missionId, List<Long> collaboratorIds) {
         Mission mission = missionRepository.findById(missionId)
                 .orElseThrow(() -> new EntityNotFoundException("Mission not found"));
 
         List<Collaborator> collaboratorsToRemove = collaboratorRepository.findAllById(collaboratorIds);
 
-        mission.getCollaborators().removeAll(collaboratorsToRemove);
-        missionRepository.save(mission);
+        // Check if each collaborator is associated with the mission
+        for (Collaborator collaborator : collaboratorsToRemove) {
+            if (mission.getCollaborators().contains(collaborator)) {
+                mission.getCollaborators().remove(collaborator);
+                collaborator.getMissions().remove(mission);
+            }
+        }
 
-        collaboratorsToRemove.forEach(collaborator -> collaborator.getMissions().remove(mission));
+        missionRepository.save(mission);
         collaboratorRepository.saveAll(collaboratorsToRemove);
+
+        return MissionMapper.INSTANCE.missionEntitytoMissionResponseDTO(mission);
     }
+
+    @Override
+    public List<CollaboratorResponseDTO> getCollaboratorsForMission(Long missionId) {
+        Mission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new EntityNotFoundException("Mission not found"));
+
+        List<Collaborator> collaborators = mission.getCollaborators();
+
+        return CollaboratorMapper.INSTANCE.collaboratorListToCollaboratorResponseList(collaborators);
+    }
+
+
 
 }

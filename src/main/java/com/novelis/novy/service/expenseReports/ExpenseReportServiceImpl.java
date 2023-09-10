@@ -1,4 +1,4 @@
-package com.novelis.novy.service;
+package com.novelis.novy.service.expenseReports;
 
 import com.novelis.novy.enums.ApprovalStatus;
 import com.novelis.novy.Repository.ExpenseReportRepository;
@@ -9,6 +9,7 @@ import com.novelis.novy.dto.dtoResponse.ExpenseReportResponseDTO;
 import com.novelis.novy.dto.mappers.ExpenseReportMapper;
 import com.novelis.novy.model.ExpenseReport;
 import com.novelis.novy.model.Mission;
+import com.novelis.novy.service.expenseReports.ExpenseReportService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,11 @@ public class ExpenseReportServiceImpl implements ExpenseReportService {
     public List<ExpenseReportListDTO> getAllExpenseReports() {
         List<ExpenseReport> expenseReports = expenseReportRepository.findAll();
         return ExpenseReportMapper.INSTANCE.expenseReportListToExpenseReportResponseList(expenseReports);    }
+
+    @Override
+    public ExpenseReportResponseDTO createExpenseReportWithoutMission(ExpenseReportRequestDTO expenseReportRequestDTO) {
+        return null;
+    }
 
     @Override
     public ExpenseReportResponseDTO createExpenseReport(ExpenseReportRequestDTO requestDTO) {
@@ -81,5 +87,52 @@ public class ExpenseReportServiceImpl implements ExpenseReportService {
 
         return ExpenseReportMapper.INSTANCE.expenseReportEntitytoExpenseReportResponseDTO(updatedExpenseReport);
     }
+
+    @Override
+    public List<ExpenseReportListDTO> getExpenseReportsByMission(Long missionId) {
+        Mission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new EntityNotFoundException("Mission not found"));
+
+        List<ExpenseReport> expenseReports = mission.getExpenseReports();
+
+        // Convert the list of expense reports to a list of DTOs
+        return ExpenseReportMapper.INSTANCE.expenseReportListToExpenseReportResponseList(expenseReports);
+    }
+    @Override
+    public void approveExpenseReport(Long expenseReportId) {
+        ExpenseReport expenseReport = expenseReportRepository.findById(expenseReportId)
+                .orElseThrow(() -> new EntityNotFoundException("Expense Report not found"));
+
+        expenseReport.setApprovalStatus(ApprovalStatus.APPROVED);
+        expenseReportRepository.save(expenseReport);
+    }
+
+    @Override
+    public void rejectExpenseReport(Long expenseReportId) {
+        ExpenseReport expenseReport = expenseReportRepository.findById(expenseReportId)
+                .orElseThrow(() -> new EntityNotFoundException("Expense Report not found"));
+
+        expenseReport.setApprovalStatus(ApprovalStatus.REJECTED);
+        expenseReportRepository.save(expenseReport);
+    }
+
+    @Override
+    public void cancelExpenseReport(Long expenseReportId) {
+        ExpenseReport expenseReport = expenseReportRepository.findById(expenseReportId)
+                .orElseThrow(() -> new EntityNotFoundException("Expense Report not found"));
+
+        expenseReport.setApprovalStatus(ApprovalStatus.CANCELED);
+        expenseReportRepository.save(expenseReport);
+    }
+
+    @Override
+    public void treatExpenseReport(Long expenseReportId) {
+        ExpenseReport expenseReport = expenseReportRepository.findById(expenseReportId)
+                .orElseThrow(() -> new EntityNotFoundException("Expense Report not found"));
+
+        expenseReport.setApprovalStatus(ApprovalStatus.TREATED);
+        expenseReportRepository.save(expenseReport);
+    }
+
 }
 

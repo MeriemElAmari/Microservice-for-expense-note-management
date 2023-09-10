@@ -2,6 +2,7 @@ package com.novelis.novy.service.mission;
 
 import com.novelis.novy.dto.dtoRequest.ExpenseReportRequestDTO;
 import com.novelis.novy.dto.dtoRequest.MissionRequestDTO;
+import com.novelis.novy.dto.dtoResponse.CollaboratorResponseDTO;
 import com.novelis.novy.dto.dtoResponse.ExpenseReportListDTO;
 import com.novelis.novy.dto.dtoResponse.MissionResponseDTO;
 
@@ -17,7 +18,9 @@ public interface MissionService {
      void addExpenseReportToMission(Long missionId,Long expenseReportId);
      List<ExpenseReportListDTO> getMissionExpenseReports(Long missionId);
      void updateExpenseReportInMission(Long missionId, Long expenseReportId , ExpenseReportRequestDTO expenseReportRequestDTO);
-     void deleteExpenseReportFromMission(Long missionId, Long expenseReportId );
+     void removeExpenseReportFromMission(Long missionId, Long expenseReportId );
      MissionResponseDTO addCollaboratorsToMission(Long missionId, List<Long> collaboratorIds) ;
-     void removeCollaboratorsFromMission(Long missionId, List<Long> collaboratorIds) ;
-    }
+     MissionResponseDTO removeCollaboratorsFromMission(Long missionId, List<Long> collaboratorIds) ;
+     public List<CollaboratorResponseDTO> getCollaboratorsForMission(Long missionId) ;
+
+ }

@@ -19,7 +19,7 @@ public class Mission {
     @Column(name = "id_mission")
     private Long id;
 
-    @ManyToMany(mappedBy = "missions")
+    @ManyToMany(mappedBy = "missions",cascade = CascadeType.ALL)
     private List<Collaborator> collaborators = new ArrayList<>();
 
     @Column(name = "mission_name", length = 100)
