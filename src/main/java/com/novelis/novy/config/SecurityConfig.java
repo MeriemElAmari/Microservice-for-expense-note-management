@@ -38,8 +38,7 @@ public class SecurityConfig {
                         "/v3/api-docs/**",
                         "/swagger-resources/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") // Secure endpoints starting with "/admin" for users with the "ADMIN" role
-
-//
+                        .requestMatchers("/api/v1/user/**").hasRole("USER") // Secure endpoints starting with "/admin" for users with the "ADMIN" role
                         .anyRequest().authenticated())
                 // configure session manager :  every request should be authenticated so the session state should not be stored
                 .sessionManagement((sessionManagement)->sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 @Service
 public class CollaboratorServiceImpl implements CollaboratorService {
-    private final CollaboratorRepository collaboratorRepository;
+    CollaboratorRepository collaboratorRepository;
     private final JobRepository jobRepository;
     private final DepartmentRepository departmentRepository;
     private final AgencyRepository agencyRepository;

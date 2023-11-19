@@ -1,11 +1,14 @@
 package com.novelis.novy.controllers;
 
+import com.novelis.novy.dto.dtoRequest.ExpenseReportRequestDTO;
 import com.novelis.novy.dto.dtoRequest.MissionRequestDTO;
 import com.novelis.novy.dto.dtoResponse.CollaboratorResponseDTO;
 import com.novelis.novy.dto.dtoResponse.ExpenseReportListDTO;
+import com.novelis.novy.dto.dtoResponse.ExpenseReportResponseDTO;
 import com.novelis.novy.dto.dtoResponse.MissionResponseDTO;
+import com.novelis.novy.service.CollaboratorService;
+import com.novelis.novy.service.expenseReports.ExpenseReportService;
 import com.novelis.novy.service.mission.MissionService;
-import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +24,14 @@ import java.util.List;
 public class AdminController {
 
     private final MissionService missionService;
+    private final ExpenseReportService expenseReportService;
+    private final CollaboratorService collaboratorService;
+
     @Autowired
-    public AdminController(MissionService missionService) {
+    public AdminController(MissionService missionService, ExpenseReportService expenseReportService, CollaboratorService collaboratorService) {
         this.missionService = missionService;
+        this.expenseReportService = expenseReportService;
+        this.collaboratorService = collaboratorService;
     }
     @GetMapping("/get-all-missions")
     @PreAuthorize("hasAuthority('admin:read')")
@@ -70,7 +78,6 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    @Hidden
     @GetMapping("/{missionId}/expense-reports")
     @PreAuthorize("hasAuthority('admin:read')")
     public ResponseEntity<List<ExpenseReportListDTO>> getExpenseReportsByMission(
@@ -78,4 +85,77 @@ public class AdminController {
         List<ExpenseReportListDTO> expenseReports = missionService.getMissionExpenseReports(missionId);
         return ResponseEntity.ok(expenseReports);
     }
+    @GetMapping("/{collaboratorId}/missions")
+    public ResponseEntity<List<MissionResponseDTO>> getMissionsByCollaborator(@PathVariable Long collaboratorId) {
+        List<MissionResponseDTO> missions = collaboratorService.getCollaboratorMissions(collaboratorId);
+
+        return ResponseEntity.ok(missions);
+    }
+    @GetMapping("/{collaboratorId}/expense-reports")
+    public ResponseEntity<List<ExpenseReportListDTO>> getExpenseReportsByCollaborator(@PathVariable Long collaboratorId) {
+        List<ExpenseReportListDTO> expenseReports = collaboratorService.getExpenseReportsForCollaborator(collaboratorId);
+
+        return ResponseEntity.ok(expenseReports);
+    }
+
+    @GetMapping("/all-expense-reports")
+    public ResponseEntity<List<ExpenseReportListDTO>> getAllExpenseReports() {
+        List<ExpenseReportListDTO> expenseReports = expenseReportService.getAllExpenseReports();
+        return ResponseEntity.ok(expenseReports);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<ExpenseReportResponseDTO> createExpenseReport(@RequestBody ExpenseReportRequestDTO requestDTO) {
+        ExpenseReportResponseDTO createdExpenseReport = expenseReportService.createExpenseReport(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdExpenseReport);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ExpenseReportResponseDTO> updateExpenseReport(
+            @PathVariable Long id,
+            @RequestBody ExpenseReportRequestDTO requestDTO
+    ) {
+        ExpenseReportResponseDTO updatedExpenseReport = expenseReportService.updateExpenseReport(id, requestDTO);
+        return ResponseEntity.ok(updatedExpenseReport);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteExpenseReport(@PathVariable Long id) {
+        expenseReportService.deleteExpenseReport(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/approve/{expenseReportId}")
+    public ResponseEntity<ExpenseReportResponseDTO> approveExpenseReport(
+            @PathVariable Long expenseReportId
+    ) {
+        ExpenseReportResponseDTO approvedExpenseReport = expenseReportService.approveExpenseReport(expenseReportId);
+        return ResponseEntity.ok(approvedExpenseReport);
+    }
+
+    @PutMapping("/reject/{expenseReportId}")
+    public ResponseEntity<ExpenseReportResponseDTO> rejectExpenseReport(
+            @PathVariable Long expenseReportId
+    ) {
+        ExpenseReportResponseDTO rejectedExpenseReport = expenseReportService.rejectExpenseReport(expenseReportId);
+        return ResponseEntity.ok(rejectedExpenseReport);
+    }
+
+    @PutMapping("/cancel/{expenseReportId}")
+    public ResponseEntity<ExpenseReportResponseDTO> cancelExpenseReport(
+            @PathVariable Long expenseReportId
+    ) {
+        ExpenseReportResponseDTO canceledExpenseReport = expenseReportService.cancelExpenseReport(expenseReportId);
+        return ResponseEntity.ok(canceledExpenseReport);
+    }
+
+    @PutMapping("/treat/{expenseReportId}")
+    public ResponseEntity<ExpenseReportResponseDTO> treatExpenseReport(
+            @PathVariable Long expenseReportId
+    ) {
+        ExpenseReportResponseDTO treatedExpenseReport = expenseReportService.treatExpenseReport(expenseReportId);
+        return ResponseEntity.ok(treatedExpenseReport);
+    }
+
+
 }
